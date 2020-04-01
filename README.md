@@ -2,7 +2,7 @@
 Working with graphs :)
 
   <h2> Adjacency Matrix </h2>
-  <p> Adjacency matrix is a square matrix used to represent a finite graph. The elements of the matrix indicate whether pairs of vertices are adjacent or not in the graph. <br>
+   Adjacency matrix is a square matrix used to represent a finite graph. The elements of the matrix indicate whether pairs of vertices are adjacent or not in the graph. <br>
     Memory (storage) cost = O(n²). <br>
     Searching cost = O(1). Constant. <br> 
     It means that it is a useful representation for dense graphs with many edges and good for searching. <br>
