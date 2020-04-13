@@ -87,7 +87,7 @@ void RemoveEdge (List *G, int vertex1, int vertex2) {
 	Node* aux_v2 = G->list[vertex2];
 	Node* aux2_v2 = G->list[vertex2]->next;
 
-	while (aux2_v1 != NULL && aux2_v1->adjacency != vertex2) { // scrolls through the list until it finds vertex 2
+	while (aux2_v1 != NULL && aux2_v1->adjacency != vertex2) { // scrolls through the list 
 		aux_v1 = aux2_v1;
 		aux2_v1 = aux2_v1->next;
 	}
@@ -101,7 +101,7 @@ void RemoveEdge (List *G, int vertex1, int vertex2) {
 	}
 
 
-	while (aux2_v2 != NULL && aux2_v2->adjacency != vertex1) { // scrolls through the list until it finds vertex 2
+	while (aux2_v2 != NULL && aux2_v2->adjacency != vertex1) { // scrolls through the list 
 		aux_v2 = aux2_v2;
 		aux2_v2 = aux2_v2->next;
 	}
