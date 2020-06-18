@@ -156,6 +156,11 @@ int DFS_CheckCicle(Graph *G, Stack *s) {
     time = 0;
     for (int i = 0; i < ver; i++)
         if (color[i] == WHITE) DFSVisit (G, s, i, time, ver, d, f, pi, color, &cicle);
+
+    free (d);
+    free (f);
+    free (pi);
+    free (color);
    
     return cicle;
 }
@@ -206,6 +211,10 @@ void CalculatesTime (Graph *G) {
             temporarilySaved[i] = 0; // null to next iteration
         }
     }
+
+    EndsGraph(dependencies);
+    free(executed);
+    free(temporarilySaved);
         
     printf("%d\n", counter); // answer
 
