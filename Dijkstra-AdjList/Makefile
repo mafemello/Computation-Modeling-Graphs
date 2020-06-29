@@ -1,4 +1,4 @@
 all:
-	gcc main.c adj-list.c -o programa
+	gcc main.c adj-matrix.c -o programa
 run:
 	./programa
