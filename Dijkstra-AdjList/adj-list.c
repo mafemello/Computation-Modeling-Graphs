@@ -1,5 +1,4 @@
 // ADT - Adjacency list
-// Non-oriented and weightless graph
 
 #include <stdio.h>
 #include <stdlib.h>
