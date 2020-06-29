@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "adj-matrix.h"
 
+
 #define WHITE 0
 #define GRAY 1
 #define BLACK 2
@@ -59,14 +60,11 @@ void EndsGraph (Graph* G) {
     free(G);
 }
 
-void print (int*** info, int v1, int v2) {
-
-    int oi = info [1][v1][v2];
-    printf("oi: %d\n", oi);
-
-
+void invertVector (int* inverted, int* original, int size) {
+    for (int i = 0; i < size; i++) {
+        inverted[size-i-1] = original[i];
+    }
 }
-
  
 int djikstra (Graph* G, int origin, int destiny, int*** info, int flyNumber) {
     
@@ -119,14 +117,42 @@ int djikstra (Graph* G, int origin, int destiny, int*** info, int flyNumber) {
             caminho[k] = previous[vert];
             vert = previous[vert];
             k++;
-            totalPrice += info[1][caminho[k]][k];
         }
 
-        // 0 1 3
-        for (int i = k-1; i >= 0; i--) {
-            printf("%d ", caminho[i]);
-        }       
 
+        int resp = 0;
+        int *aux = (int*)malloc(sizeof(int)*G->n_vertex);
+        invertVector (aux, caminho, k);
+        for (int i = 0; i <= k-1; i++) {
+            printf("%d ", aux[i]);
+            //printf("aux[%d]: %d\n", i, aux[i]);
+            totalPrice += info[1][aux[i]][aux[i+1]];
+        }
+
+
+        // // // 0 1 3
+        // int *aux = (int*)malloc(sizeof(int)*G->n_vertex);
+        // for (int i = k-1; i >= 0; i--) {
+        //     printf("%d ", caminho[i]);
+        //     printf("caminho[%d]: %d\n", i, caminho[i]);
+        //     totalPrice = info[1][caminho[i+1]][caminho[i]];
+        // }       
+
+        // invertVector (aux, caminho, k);
+        // for (int i = 0; i <= k-1; i++) {
+        //     resp += totalPrice;
+        //     printf("%d ", aux[i]);
+        //     printf("aux[%d]: %d\n", i, aux[i]);
+        //     printf("totalPrice: %d\n",info[1][aux[i]][aux[i+1]] );
+        //     printf("resp: %d\n", resp);
+        // }
+
+
+        // for (int i = k; i >= 0; i--) {
+        //     printf("%d ", caminho[i]);
+        //     printf("caminho[%d]: %d\n", i, caminho[i]);
+        //     totalPrice += info[1][caminho[i+1]][caminho[i]];
+        // } 
 
 
         printf("\n%d %d\n", pathWeigth[destiny], totalPrice);

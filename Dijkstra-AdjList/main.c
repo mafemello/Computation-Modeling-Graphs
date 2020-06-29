@@ -33,8 +33,6 @@ int main (void) {
 	}
 	scanf ("%d %d", &origin, &destiny); // she wants to know the fastest way and the costs
 	//printAsCoisa (G, info, flyNumber);
-	print (info, 0, 1);
-
 	djikstra (G, origin, destiny, info, flyNumber);
 	EndsGraph (G);
 
