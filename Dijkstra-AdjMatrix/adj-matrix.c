@@ -65,6 +65,22 @@ void invertVector (int* inverted, int* original, int size) {
         inverted[size-i-1] = original[i];
     }
 }
+
+void tratarInfo (Graph* G, int v1, int v2, int*** info) {
+    if (G->adjacency[v1][v2] !=  info[0][v1][v2]) {
+        G->adjacency[v1][v2] = 0;
+        info[1][v1][v2] = 0;
+    } 
+}
+
+void print (int*** info, int city, int fly){
+
+    for (int i = 0; i < city; i++) {
+        for (int j = 0; j < city; j++)
+            printf("preço da aresta [%d][%d]: %d\n", i, j, info[1][i][j]);
+    }   
+
+}
  
 int djikstra (Graph* G, int origin, int destiny, int*** info, int flyNumber) {
     
@@ -124,8 +140,13 @@ int djikstra (Graph* G, int origin, int destiny, int*** info, int flyNumber) {
         int *aux = (int*)malloc(sizeof(int)*G->n_vertex);
         invertVector (aux, caminho, k);
         for (int i = 0; i <= k-1; i++) {
+            if (G->adjacency[aux[i]][aux[i+1]] !=  info[0][aux[i]][aux[i+1]]) {
+                G->adjacency[aux[i]][aux[i+1]] = 0;
+                info[1][aux[i]][aux[i+1]] = 0;
+            } 
             printf("%d ", aux[i]);
             //printf("aux[%d]: %d\n", i, aux[i]);
+            //printf ("preco aqui [%d][%d]: %d\n",aux[i],aux[i+1] , info[1][aux[i]][aux[i+1]]);
             totalPrice += info[1][aux[i]][aux[i+1]];
         }
 
