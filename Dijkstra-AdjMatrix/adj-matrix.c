@@ -2,21 +2,17 @@
 #include <stdlib.h>
 #include "adj-matrix.h"
 
-
-#define WHITE 0
-#define GRAY 1
-#define BLACK 2
-
 #define INFINITE 9999
 
 // Defining the structure that represents the graph
 struct graph {
-    int dir; // if it is directed
+    int dir; // If it is directed
     int n_vertex;  
     int** adjacency; // Double pointer that represents the entire matrix
 
 };
 
+// Creates the graph
 Graph* CreateGraph(int n_vertex, int dir) {
     
     // Memory allocation
@@ -41,10 +37,12 @@ Graph* CreateGraph(int n_vertex, int dir) {
 /*
     v1: origin vertex
     v2: destination vertex
-    w: weight
+    info: weight
+        info[0][v1][v2] ==> keeps the duration of the fly (between the two vertices)
+        info[1][v1][v2] ==> keeps the price of the fly (between the two vertices)
 */
 void AddEdge (Graph* G, int v1, int v2, int*** info) {
-    G->adjacency[v1][v2] = info[0][v1][v2];
+    G->adjacency[v1][v2] = info[0][v1][v2]; // matrix keeps the duration (that is on the triple pointer)
     if (!G->dir) G->adjacency[v2][v1] = info[0][v1][v2]; // If the graph is not directed
 }
 
@@ -55,57 +53,68 @@ int GimmeNumberOfVertices (Graph* G) {
 
 // Finishes the graph and releases allocated memory
 void EndsGraph (Graph* G) {
-    for (int i = 0; i < G->n_vertex; i++) free(G->adjacency[i]);
+    for (int i = 0; i < G->n_vertex; i++) {
+        free(G->adjacency[i]);
+    } 
     free(G->adjacency);
     free(G);
 }
 
+// Auxiliar function to invert de path vector to print it correctly :)
 void invertVector (int* inverted, int* original, int size) {
     for (int i = 0; i < size; i++) {
         inverted[size-i-1] = original[i];
     }
 }
 
-void tratarInfo (Graph* G, int v1, int v2, int*** info) {
-    if (G->adjacency[v1][v2] !=  info[0][v1][v2]) {
-        G->adjacency[v1][v2] = 0;
-        info[1][v1][v2] = 0;
+// Auxiliar function that sets to 0 the price if there are no edges in between two vertices
+void correctsInfo (Graph* G, int v1, int v2, int*** info) {
+    if (G->adjacency[v1][v2] !=  info[0][v1][v2]) { 
+        G->adjacency[v1][v2] = 0; // sets duration to 0
+        info[1][v1][v2] = 0; // sets price to 0
     } 
 }
 
-void print (int*** info, int city, int fly){
-
+// Auxiliar function to verify if the prices are correctly kept
+void print (int*** info, int city){
     for (int i = 0; i < city; i++) {
         for (int j = 0; j < city; j++)
             printf("preço da aresta [%d][%d]: %d\n", i, j, info[1][i][j]);
     }   
-
 }
  
-int djikstra (Graph* G, int origin, int destiny, int*** info, int flyNumber) {
-    
-    Graph *aux = CreateGraph(G->n_vertex, 1);
+// Djikstra function to find the path with the shortest duration
+/*
+    - Graph* G ==> graph
+    - int origin ==> source vertex
+    - int destiny ==> destiny vertex
+    - int*** info ==> triple pointer that keeps duration and price of an edge
+            info[0][v1][v2] --> duration (between vertices 1 and 2)
+            info[1][v1][v2] --> price (between vertices 1 and 2)
 
+*/
+int djikstra (Graph* G, int origin, int destiny, int*** info) {
+    
     int vert, k, newPath, min;
     int totalPrice = 0;
-    int* pathWeigth = (int*)malloc(sizeof(int)*G->n_vertex); // L
-    int* previous = (int*)malloc(sizeof(int)*G->n_vertex); //A
-    int* visited = (int*)malloc(sizeof(int)*G->n_vertex); //M
-    int* caminho = (int*)malloc(sizeof(int)*G->n_vertex);
+    int* pathWeigth = (int*)malloc(sizeof(int)*G->n_vertex); 
+    int* previous = (int*)malloc(sizeof(int)*G->n_vertex); 
+    int* visited = (int*)malloc(sizeof(int)*G->n_vertex); 
+    int* finalPath = (int*)malloc(sizeof(int)*G->n_vertex);
 
     for (int v = 0; v < G->n_vertex; v++) {
-        visited[v] = 0; // ainda nao visitado
-        previous[v] = -1; // caminho mais curto entre origem e destino
-        pathWeigth[v] = INFINITE; // peso INFINITEimo 
+        visited[v] = 0; // not visited yet
+        previous[v] = -1; // shortest path between origin and destiny
+        pathWeigth[v] = INFINITE; 
     }
 
     vert = origin;
-    pathWeigth[vert] = 0;
+    pathWeigth[vert] = 0; 
     
-    // nao terminou caminho existente
+    // haven't finished existing path
     while (vert != destiny && vert != -1) { 
-        for (int i = 0; i < G->n_vertex; i++) { // percore vertices adj a origem
-            if (G->adjacency[vert][i] != 0 && visited[i] == 0) { //aresta existe e nao foi visitada
+        for (int i = 0; i < G->n_vertex; i++) { // walks through adj vertices  
+            if (G->adjacency[vert][i] != 0 && visited[i] == 0) { // edge exists and yet not visited
                 newPath = pathWeigth[vert] + G->adjacency[vert][i];
                 if (newPath < pathWeigth[i]) {
                     pathWeigth[i] = newPath;
@@ -113,84 +122,46 @@ int djikstra (Graph* G, int origin, int destiny, int*** info, int flyNumber) {
                 }
             }
         }
-        visited[vert] = 1; // toda lista de adj de vert ja foi visitada
+        visited[vert] = 1; // the entire adj matrix have been visited
         min = INFINITE;
-        vert = -1; // invalido
+        vert = -1; // invalid
         for (int i = 0; i < G->n_vertex; i++) {
-            if (visited[i] == 0 && pathWeigth[i] < min) { // escolhe vertice cuja aresta possui o menor peso
-                min = pathWeigth[i]; // atualiza minimo
-                vert = i; // atualiza vert
+            if (visited[i] == 0 && pathWeigth[i] < min) { // picks vertex of which it's edge has the lowest weight
+                min = pathWeigth[i]; // update minimum
+                vert = i; // update vert
             }
         }
-    } // fim do while
+    } // while
 
-    // listar caminho mais curto entre origem e destino
-    if (vert == destiny) { // encontrou um caminho
-        //printf("caminho mais curto entre %4d e %4d tem comprimento %4d: \n", origin, destiny, pathWeigth[destiny]);
-        caminho[0] = destiny;
+    // list the shortest path between origin and desntiny
+    if (vert == destiny) { // found the path
+        finalPath[0] = destiny;
         k = 1;
-        while (vert != origin) {
-            caminho[k] = previous[vert];
+        while (vert != origin) { 
+            finalPath[k] = previous[vert]; // saves the path
             vert = previous[vert];
             k++;
         }
 
-
-        int resp = 0;
-        int *aux = (int*)malloc(sizeof(int)*G->n_vertex);
-        invertVector (aux, caminho, k);
+        int *aux = (int*)malloc(sizeof(int)*G->n_vertex); 
+        invertVector (aux, finalPath, k); // invert the vector path to print it correctly
         for (int i = 0; i <= k-1; i++) {
+            // corrects info (if there is no edge in between two vertices, then price = 0)
             if (G->adjacency[aux[i]][aux[i+1]] !=  info[0][aux[i]][aux[i+1]]) {
                 G->adjacency[aux[i]][aux[i+1]] = 0;
                 info[1][aux[i]][aux[i+1]] = 0;
             } 
-            printf("%d ", aux[i]);
-            //printf("aux[%d]: %d\n", i, aux[i]);
-            //printf ("preco aqui [%d][%d]: %d\n",aux[i],aux[i+1] , info[1][aux[i]][aux[i+1]]);
-            totalPrice += info[1][aux[i]][aux[i+1]];
+            printf("%d ", aux[i]); // path
+            totalPrice += info[1][aux[i]][aux[i+1]]; // adds the price
         }
 
+        totalPrice = totalPrice - info[1][aux[k-1]][0]; // Subtracts last edge caused by for loop (that is not included in the path)
 
-        // // // 0 1 3
-        // int *aux = (int*)malloc(sizeof(int)*G->n_vertex);
-        // for (int i = k-1; i >= 0; i--) {
-        //     printf("%d ", caminho[i]);
-        //     printf("caminho[%d]: %d\n", i, caminho[i]);
-        //     totalPrice = info[1][caminho[i+1]][caminho[i]];
-        // }       
-
-        // invertVector (aux, caminho, k);
-        // for (int i = 0; i <= k-1; i++) {
-        //     resp += totalPrice;
-        //     printf("%d ", aux[i]);
-        //     printf("aux[%d]: %d\n", i, aux[i]);
-        //     printf("totalPrice: %d\n",info[1][aux[i]][aux[i+1]] );
-        //     printf("resp: %d\n", resp);
-        // }
-
-
-        // for (int i = k; i >= 0; i--) {
-        //     printf("%d ", caminho[i]);
-        //     printf("caminho[%d]: %d\n", i, caminho[i]);
-        //     totalPrice += info[1][caminho[i+1]][caminho[i]];
-        // } 
-
-
-        printf("\n%d %d\n", pathWeigth[destiny], totalPrice);
-
-
-
+        printf("\n%d %d\n", pathWeigth[destiny], totalPrice); // Prints duration and price
+        free (aux);
     }
-
     free (pathWeigth);
     free (previous);
     free (visited);
-    free (caminho);
-
-
-
-
-
-
-
+    free (finalPath);
 }
