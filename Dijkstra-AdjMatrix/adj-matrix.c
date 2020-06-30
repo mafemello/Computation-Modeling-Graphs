@@ -156,7 +156,7 @@ int djikstra (Graph* G, int origin, int destiny, int*** info) {
         }
 
         totalPrice = totalPrice - info[1][aux[k-1]][0]; // Subtracts last edge caused by for loop (that is not included in the path)
-
+        
         printf("\n%d %d\n", pathWeigth[destiny], totalPrice); // Prints duration and price
         free (aux);
     }

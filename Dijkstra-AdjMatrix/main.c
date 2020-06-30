@@ -25,7 +25,7 @@ int main (void) {
 	*/
 	// Memory allocation 
 	int ***info = (int***)calloc(2, sizeof(int**));
-	for (int i = 0; i < cityNumber; i++) {
+	for (int i = 0; i < 2; i++) {
 		info[i] = (int**)calloc(cityNumber, sizeof(int*));;
 		for (int j = 0; j < cityNumber; j++) {
 			info[i][j] = (int*)calloc(cityNumber, sizeof(int));
@@ -48,6 +48,7 @@ int main (void) {
 	
 	djikstra (G, origin, destiny, info); // calculates shortest path, print the path and it's costs.
 	EndsGraph (G); // realeses allocated memory
+
 
 
 	return 0;
